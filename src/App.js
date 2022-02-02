@@ -49,7 +49,7 @@ function App() {
   const [planetsIdsOf, setPlanetsIdsOf] = useState(0);
   const [planetsInfos, setPlanetsInfos] = useState([]);
   const [totalPendingRewards, setTotalPendingRewards] = useState(0);
-  const [planetValue, setPlanetValue] = useState(0);
+  const [totalPlanetsValue, setTotalPlanetsValue] = useState(0);
   const [showNewPlanetModal, setShowNewPlanetModal] = useState(false);
 
   // new planet form info
@@ -173,6 +173,7 @@ function App() {
     console.log('planets infos', _planetsInfos);
     setPlanetsInfos(_planetsInfos);
     updateTotalPendingReward(_planetsInfos);
+    updateTotalPlanetsValue(_planetsInfos);
     calcCompoundTime(_planetsInfos);
   }
 
@@ -184,6 +185,14 @@ function App() {
       setTotalPendingRewards(total);
   }
 
+  const updateTotalPlanetsValue = (_planets)=>{
+    let total = 0;
+    for(let i = 0; i<_planets.length; i++){
+      total += Math.floor(_planets[i].planet.planetValue);
+    }
+    setTotalPlanetsValue(total);
+  }
+  
   const calcCompoundTimeInterval = async () => {
     await updatePlanetInfos();
   }
@@ -367,7 +376,7 @@ function App() {
           <div className="item">
             {/* <div className="item-header">Your $MIMap Balance</div> */}
             <div className="item-body">
-              <div className="item-name">{eval(parseInt(planetValue) / 1e18).toFixed(0)}</div>
+              <div className="item-name">{(Math.floor(totalPlanetsValue) / Math.pow(10, 18)).toFixed(4)} UNIV</div>
               <div className="item-value">Planets Value</div>
               <div></div>
             </div>
