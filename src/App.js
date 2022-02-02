@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./App.scss";
 import Web3 from "web3";
-import { getTotalBalance, getTotalBalanceNFT, getCurrentTokenSupply, getTotalValueLocked, getTotalPlanets, getTotalEmissionPerDay, getRewardPerDay, getCreationMinPrice, getPlanetsIdsOf, getPlanetsInfos, createPlanet, compoundAll, compoundOne } from "./api/reward";
+import { getTotalBalance, getTotalBalanceNFT, getCurrentTokenSupply, getTotalValueLocked, getTotalPlanets, getTotalEmissionPerDay, getRewardPerDay, getCreationMinPrice, getPlanetsIdsOf, getPlanetsInfos, createPlanet, compoundAll, compoundOne, cashoutAll, cashoutReward } from "./api/reward";
 // import { getTotalReward, getUserReward, getPendingReward, claim, getTotalBalance, getTotalBalanceNFT  } from "./api/reward";
 // import { connectToWallet, offWeb3Modal } from "./api";
 import { chainHex, chainId } from "./config/site.config";
@@ -136,19 +136,35 @@ function App() {
     await updatePlanetInfos();
   }
 
-  const compoundAllHandler = async ()=>{
-      let res = await compoundAll(myWeb3, account);
-      console.log(res);
-      await updatePlanetInfos();
+  const compoundAllHandler = async () => {
+    let res = await compoundAll(myWeb3, account);
+    console.log(res);
+    await updatePlanetInfos();
   }
 
-  const handleCompoundOne = async (id)=>{
-      let res = await compoundOne(myWeb3, account, id);
-      console.log(res);
-      await updatePlanetInfos();
+  const handleCompoundOne = async (id) => {
+    let res = await compoundOne(myWeb3, account, id);
+    console.log(res);
+    await updatePlanetInfos();
   }
 
-  const updatePlanetInfos = async()=>{
+  const handleClaimAll = async () => {
+    if(window.confirm("Claiming rewards for all planets will reset the tiers for all of them, are you sure to continue?")){
+      let res = await cashoutAll(myWeb3, account);
+      console.log(res);
+      await updatePlanetInfos();
+    }
+  }
+
+  const handleClaimOne = async (id) => {
+    if(window.confirm("Claiming rewards for this planet will reset its tier, are you sure to continue?")){
+      let res = await cashoutReward(myWeb3, account, id);
+      console.log(res);
+      await updatePlanetInfos();
+    }
+  }
+
+  const updatePlanetInfos = async () => {
     const _planetsIdsOf = await getPlanetsIdsOf(myWeb3, account)
     console.log('planetsIdsOf =====', _planetsIdsOf);
     setPlanetsIdsOf(_planetsIdsOf)
@@ -159,7 +175,7 @@ function App() {
     calcCompoundTime(_planetsInfos);
   }
 
-  const calcCompoundTimeInterval = async() => {
+  const calcCompoundTimeInterval = async () => {
     await updatePlanetInfos();
   }
 
@@ -369,8 +385,8 @@ function App() {
             :
             <>
               <div className="col-lg-12 col-sm-12">
-                <button className="btn btn-secondary me-2" onClick={()=>compoundAllHandler()} disabled={allCompoundLeftTime > 0}>Compond All {makeTimeLabel(allCompoundLeftTime, 'all')}</button>
-                <button className="btn btn-secondary me-2">Claim Reward for All</button>
+                <button className="btn btn-secondary me-2" onClick={() => compoundAllHandler()} disabled={allCompoundLeftTime > 0}>Compond All {makeTimeLabel(allCompoundLeftTime, 'all')}</button>
+                <button className="btn btn-secondary me-2" onClick={() => handleClaimAll()} disabled={allCompoundLeftTime > 0}>Claim Reward for All {makeTimeLabel(allCompoundLeftTime, 'all')}</button>
                 <NewPlanetBtn onClick={() => onNewNftBtn()}></NewPlanetBtn>
               </div>
               {
@@ -405,11 +421,26 @@ function App() {
                         </div>
                       </div>
                       <div className="row mb-2">
-                        <div className="col-12">
-                          <button className="btn btn-secondary form-control" disabled={delayTimes[nftCard.id]>0} onClick={()=>handleCompoundOne(nftCard.id)}>
-                            {makeTimeLabel(delayTimes[nftCard.id], nftCard.id)}
-                          </button>
-                        </div>
+                        {
+                          delayTimes[nftCard.id] > 0 ? <div className="col-12">
+                            <button className="btn btn-secondary form-control" disabled={delayTimes[nftCard.id] > 0} onClick={() => handleCompoundOne(nftCard.id)}>
+                              {makeTimeLabel(delayTimes[nftCard.id], nftCard.id)}
+                            </button>
+                          </div> :
+                            <>
+                              <div className="col-6">
+                                <button className="btn btn-secondary form-control" onClick={() => handleCompoundOne(nftCard.id)}>
+                                  {makeTimeLabel(delayTimes[nftCard.id], nftCard.id)}
+                                </button>
+                              </div>
+                              <div className="col-6">
+                                <button className="btn btn-primary form-control" onClick={() => handleClaimOne(nftCard.id)}>
+                                  CLAIM REWARDS
+                                </button>
+                              </div>
+                            </>
+                        }
+
                       </div>
                     </div>
                   </div>

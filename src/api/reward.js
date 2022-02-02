@@ -193,6 +193,28 @@ async function compoundOne(myweb3, account, id) {
   }
 }
 
+async function cashoutAll(myweb3, account) {
+  try {
+    const contractInstance = getNFTContractInstance(myweb3);
+    // let res = await contractInstance.methods.totalSupply(account).call();
+    let res = await contractInstance.methods.cashoutAll().send({from: account});
+    return Promise.resolve(res);
+  } catch (error) {
+    return Promise.reject(error);
+  }
+}
+
+async function cashoutReward(myweb3, account, id) {
+  try {
+    const contractInstance = getNFTContractInstance(myweb3);
+    // let res = await contractInstance.methods.totalSupply(account).call();
+    let res = await contractInstance.methods.cashoutReward(id).send({from: account});
+    return Promise.resolve(res);
+  } catch (error) {
+    return Promise.reject(error);
+  }
+}
+
 // async function getPendingReward(myweb3, account) {
 //   try {
 //     const contractInstance = getContractInstance(myweb3);
@@ -244,5 +266,7 @@ export {
   getPlanetsInfos,
   createPlanet,
   compoundAll,
-  compoundOne
+  compoundOne,
+  cashoutAll,
+  cashoutReward
 };
