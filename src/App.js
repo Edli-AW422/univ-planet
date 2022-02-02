@@ -48,7 +48,7 @@ function App() {
   const [creationMinPrice, setCreationMinPrice] = useState(0);
   const [planetsIdsOf, setPlanetsIdsOf] = useState(0);
   const [planetsInfos, setPlanetsInfos] = useState([]);
-  const [pendingRewards, setPendingRewards] = useState(0);
+  const [totalPendingRewards, setTotalPendingRewards] = useState(0);
   const [planetValue, setPlanetValue] = useState(0);
   const [showNewPlanetModal, setShowNewPlanetModal] = useState(false);
 
@@ -172,7 +172,16 @@ function App() {
     const _planetsInfos = await getPlanetsInfos(myWeb3, account, _planetsIdsOf)
     console.log('planets infos', _planetsInfos);
     setPlanetsInfos(_planetsInfos);
+    updateTotalPendingReward(_planetsInfos);
     calcCompoundTime(_planetsInfos);
+  }
+
+  const updateTotalPendingReward = (_planets)=>{
+      let total = 0;
+      for(let i = 0; i<_planets.length; i++){
+        total += Math.floor(_planets[i].pendingRewards);
+      }
+      setTotalPendingRewards(total);
   }
 
   const calcCompoundTimeInterval = async () => {
@@ -267,7 +276,7 @@ function App() {
         // -------------- //
         setInterval(() => {
           calcCompoundTimeInterval();
-        }, 60000);
+        }, 30000);
         // -------------- //
       }
     })()
@@ -339,7 +348,7 @@ function App() {
         <div className="col-lg-4 col-sm-12">
           <div className="item">
             <div className="item-body">
-              <div className="item-name">{eval(parseInt(pendingRewards) / 1e18).toFixed(0)}</div>
+              <div className="item-name">{(Math.floor(totalPendingRewards) / Math.pow(10, 18)).toFixed(4)} UNIV</div>
               <div className="item-value"> Total Pending Rewards</div>
             </div>
           </div>
@@ -392,13 +401,14 @@ function App() {
               {
                 planetsInfos.map((nftCard, key) =>
                   <div className="col-lg-4 col-sm-12" key={key}>
-                    <div className="nft-card">
+                    <div className={`nft-card ${Math.floor(nftCard.planet.rewardMult)>100000?'compound':''}`}>
                       <div className="row mb-2">
                         <div className="col-4">
                           <img src={PlanetImg} className="planet" />
                         </div>
                         <div className="col-8">
-                          <label>{nftCard.planet['name']}</label>
+                          <h4 className="mb-2">TIER {(Math.floor(nftCard.planet.rewardMult) - 100000)/1000}</h4>
+                          <label>{nftCard.planet.name}</label>
                           <h3>MERCURY </h3> #{nftCard.id}
                         </div>
                       </div>

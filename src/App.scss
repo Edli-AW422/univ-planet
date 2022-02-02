@@ -203,6 +203,9 @@ a {
 
 .nft-card {
   background: #3d3d3d;
+  &.compound {
+    background: #5f4a3b;
+  }
   /* border: 20px; */
   padding: 20px;
   display: block;
